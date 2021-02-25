@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+　<title>温度センサー</title> 
+</head>
+<body>
+	<canvas id="myLineChart" width="100%" length="100%"></canvas>
+	<script src="Chart.min.js"></script>
+
+	<script>
+
+	var now = new Date();
+
+	var pArray = [];
+	for (let i = 0; i < 60; i++) {
+		let before_unix = now.getTime() - (60*1000) + (i*1000); //ミリ秒なので(秒*1000)
+		let before = new Date(before_unix);
+
+		let year = before.getFullYear();
+		let month = before.getMonth()+1;
+		let date = before.getDate();
+		let hours = ( '00' + before.getHours() ).slice( -2 );
+		let minute = ( '00' + before.getMinutes() ).slice( -2 );
+		let second = ( '00' + before.getSeconds() ).slice( -2 );
+
+		pArray.push(year+'/'+month+'/'+date+'/ '+hours+':'+minute+':'+second);
+	}
+
+	var v1Array = [49,47,53,53,52,44,46,49,51,50,60,56,53,50,55,55,58,63,56,57,61,65,67,66,73,67,66,76,76,72,79,83,84,78,74,70,65,70,74,69,61,62,73,75,78,78,74,66,67,69,74,78,80,74,64,71,72,69,67,63];
+	var v2Array = [22.4,22.6,23.2,21.6,22.5,20.5,22.5,21.9,22.5,20.1,19.8,21.3,22.4,19.4,23.2,25.9,27.2,29.4,29.9,28.4,26.4,26.7,27.2,29.4,28.8,29.4,28.9,27,28.1,28.6,30.3,30.4,29.6,29.4,29.1,30,30.5,30.2,29.8,30,30.2,30.9,31.5,27.6,27.9,27.9,29.4,28.9,27.5,26.9,27.7,27.8,25.7,28.2,27.8,25.6,26,28.3,26.7,24.3];
+	var v3Array = [28.9,30.4,29.9,34.8,33.5,34.9,32.8,30.4,33.9,33.1,35.8,35,34.1,32.5,34.3,35,35.3,35.1,35,35.1,35.2,35.9,37.7,32.6,33.4,31.9,35.5,33.7,30.5,31.8,33.1,31.9,28,31.9,31.4,27,29.4,32.7,31.4,29.3,22.9,21.3,27.3,22.9,21,22.5,24.1,26.5,31.5,30.4,30.1,29.3,27.5,26.1,21,25.3,23.5,29.3,29.5,27.5];
+
+	drawChart();
+
+	let newValue1 = 0;
+	let newValue2 = 0;
+	let newValue3 = 0;
+	let i = 0;
+
+	const countUp = () => {
+
+		let coef1 = (Math.random() * 11) - 5
+		newValue1 = v1Array[v1Array.length-1] + ((v1Array[v1Array.length-1] * coef1) / 100);
+		v1Array.push(newValue1);
+		v1Array.shift();
+
+		let coef2 = (Math.random() * 11) - 5
+		newValue2 = v2Array[v2Array.length-1] + ((v2Array[v2Array.length-1] * coef2) / 100);
+		v2Array.push(newValue2);
+		v2Array.shift();
+
+		let coef3 = (Math.random() * 11) - 5
+		newValue3 = v3Array[v3Array.length-1] + ((v3Array[v3Array.length-1] * coef3) / 100);
+		v3Array.push(newValue3);
+		v3Array.shift();
+
+
+
+		let current = new Date(now.getTime() + (i++*1000)); //ミリ秒なので(秒*1000)
+
+		let year = current.getFullYear();
+		let month = current.getMonth()+1;
+		let date = current.getDate();
+		let hours = ( '00' + current.getHours() ).slice( -2 );
+		let minute = ( '00' + current.getMinutes() ).slice( -2 );
+		let second = ( '00' + current.getSeconds() ).slice( -2 );
+
+		pArray.push(year+'/'+month+'/'+date+'/ '+hours+':'+minute+':'+second);
+		pArray.shift();
+
+		myChart.update();
+
+	}
+	setInterval(countUp, 1000);
+
+
+	function drawChart() {
+		var ctx = document.getElementById("myLineChart");
+		window.myChart = new Chart(ctx, { // インスタンスをグローバル変数で生成
+			type: 'line',
+			data: {
+				labels: pArray,
+				datasets: [
+					{
+						label: '温度センサーA',
+						data: v1Array,
+						borderColor: "rgba(255,0,0,1)",
+						backgroundColor: "rgba(0,0,0,0)"
+					},
+					{
+						label: '温度センサーB',
+						data: v2Array,
+						borderColor: "rgba(0,255,0,1)",
+						backgroundColor: "rgba(0,0,0,0)"
+					},
+					{
+						label: '温度センサーC',
+						data: v3Array,
+						borderColor: "rgba(0,0,255,0.5)",
+						backgroundColor: "rgba(0,0,0,0)"
+					}
+				],
+			},
+			options: {
+				title: {
+					display: true,
+					text: 'リアルタイム温度センサー'
+				},
+				scales: {
+					yAxes: [{
+						ticks: {
+							suggestedMax: 40,
+							suggestedMin: 0,
+							stepSize: 10,
+							callback: function(value, index, values){
+							return  value +  '度'
+							}
+						}
+					}]
+				},
+			}
+		});
+	}
+
+
+
+	</script>
+</body>
+
+</html>
+
